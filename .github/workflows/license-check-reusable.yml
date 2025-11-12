@@ -33,6 +33,7 @@ jobs:
         run: mise run lint:licenses
 
       - name: Fail if task missing
+        if: steps.check-task.outputs.exists == 'false'
         run: |
           echo "❌ License check task not found"
           echo ""
