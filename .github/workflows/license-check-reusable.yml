@@ -1,0 +1,42 @@
+name: License Check (Reusable)
+
+on:
+  workflow_call:
+
+jobs:
+  license-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 1
+
+      - name: Setup mise
+        uses: jdx/mise-action@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Check if license task exists
+        id: check-task
+        run: |
+          if mise tasks 2>/dev/null | grep -q "lint:licenses"; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+            echo "✓ Found mise lint:licenses task"
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+            echo "⚠ No mise lint:licenses task found"
+          fi
+
+      - name: Run license check
+        if: steps.check-task.outputs.exists == 'true'
+        run: mise run lint:licenses
+
+      - name: Fail if task missing
+        run: |
+          echo "❌ License check task not found"
+          echo ""
+          echo "Either:"
+          echo "1. Implement mise lint:licenses task in this repository"
+          echo "2. Remove the license-check workflow if not needed for this repo"
+          exit 1
