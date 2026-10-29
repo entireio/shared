@@ -5,12 +5,15 @@ on:
 
 jobs:
   license-check:
+    permissions:
+      contents: read
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v5
         with:
           fetch-depth: 1
+          persist-credentials: false
 
       - name: Setup mise
         uses: jdx/mise-action@v3
